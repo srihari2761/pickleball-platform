@@ -45,11 +45,11 @@ export default function Dashboard({ user, loading }) {
 
   const handleBooking = async (courtId, slot) => {
     try {
-      await api.post('/bookings', { courtId, timeSlot: slot })
+      await api.post('/bookings', { court_id: courtId, time_slot: slot })
       alert('Booking confirmed!')
       fetchData()
     } catch (error) {
-      alert(error.response?.data?.error || 'Booking failed')
+      alert(error.response?.data?.detail || 'Booking failed')
     }
   }
 
@@ -146,7 +146,7 @@ export default function Dashboard({ user, loading }) {
                 >
                   <h3>{court.name}</h3>
                   <p>{court.location}</p>
-                  <p>Surface: {court.surfaceType}</p>
+                  <p>Surface: {court.surface_type}</p>
                   {user.role === 'player' && (
                     <div style={{ marginTop: '10px' }}>
                       <button
@@ -189,8 +189,8 @@ export default function Dashboard({ user, loading }) {
                     backgroundColor: '#f9f9f9',
                   }}
                 >
-                  <h3>{booking.court.name}</h3>
-                  <p>Time: {booking.timeSlot}</p>
+                  <h3>{booking.court_name || 'Court'}</h3>
+                  <p>Time: {booking.time_slot}</p>
                   <p>Status: {booking.status}</p>
                 </div>
               ))}

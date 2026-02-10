@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi import FastAPI, HTTPException, Depends, status, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text, ForeignKey
@@ -95,16 +95,24 @@ def init_db():
         try:
             demo_user = db.query(User).filter(User.email == "alice@test.com").first()
             if not demo_user:
-                demo_user = User(
-                    email="alice@test.com",
-                    password=hash_password("password"),
-                    name="Alice Demo",
-                    role="player",
-                    skill_level="intermediate",
-                )
-                db.add(demo_user)
+                # Demo users
+                alice = User(email="alice@test.com", password=hash_password("password"), name="Alice Demo", role="player", skill_level="intermediate")
+                bob = User(email="bob@test.com", password=hash_password("password"), name="Bob Smith", role="player", skill_level="beginner")
+                carol = User(email="carol@test.com", password=hash_password("password"), name="Carol Owner", role="owner", skill_level="advanced")
+                db.add_all([alice, bob, carol])
+                db.flush()
+                
+                # Demo courts
+                courts = [
+                    Court(owner_id=carol.id, name="Sunset Pickleball Club", location="123 Sunset Blvd, San Jose, CA", surface_type="Concrete", amenities="Lights, Restrooms, Water fountain"),
+                    Court(owner_id=carol.id, name="Bay Area Courts", location="456 Marina Dr, San Francisco, CA", surface_type="Asphalt", amenities="Covered, Pro shop, Parking"),
+                    Court(owner_id=carol.id, name="Golden Gate Pickleball", location="789 Park Ave, Oakland, CA", surface_type="Sport Court", amenities="Indoor, Climate controlled, Locker rooms"),
+                    Court(owner_id=carol.id, name="Peninsula Paddle Center", location="321 El Camino Real, Palo Alto, CA", surface_type="Concrete", amenities="Lights, Seating, Vending machines"),
+                    Court(owner_id=carol.id, name="South Bay Smash Courts", location="555 Stevens Creek, Cupertino, CA", surface_type="Sport Court", amenities="Outdoor, Shaded seating, Free parking"),
+                ]
+                db.add_all(courts)
                 db.commit()
-                print("✅ Demo user seeded (alice@test.com / password)")
+                print("✅ Demo data seeded: 3 users, 5 courts")
         finally:
             db.close()
     except Exception as e:
@@ -244,13 +252,18 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     return encoded_jwt
 
 
-def get_current_user(token: str, db: Session = Depends(get_db)):
-    """Verify JWT token and return current user"""
+def get_current_user(authorization: str = Header(...), db: Session = Depends(get_db)):
+    """Verify JWT token from Authorization header and return current user"""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
     )
     try:
+        # Extract token from "Bearer <token>"
+        if authorization.startswith("Bearer "):
+            token = authorization[7:]
+        else:
+            token = authorization
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         user_id: int = payload.get("sub")
         if user_id is None:
@@ -340,11 +353,10 @@ def get_courts(db: Session = Depends(get_db)):
 @app.post("/courts", response_model=CourtResponse)
 def create_court(
     court_data: CourtCreate,
-    token: str,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """Create a new court (requires authentication)"""
-    current_user = get_current_user(token, db)
     
     db_court = Court(
         owner_id=current_user.id,
@@ -362,9 +374,8 @@ def create_court(
 
 # Bookings Routes
 @app.get("/bookings", response_model=list[BookingResponse])
-def get_bookings(token: str, db: Session = Depends(get_db)):
+def get_bookings(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Get user's bookings (requires authentication)"""
-    current_user = get_current_user(token, db)
     
     bookings = db.query(Booking).filter(
         Booking.player_id == current_user.id
@@ -386,11 +397,10 @@ def get_bookings(token: str, db: Session = Depends(get_db)):
 @app.post("/bookings", response_model=BookingResponse)
 def create_booking(
     booking_data: BookingCreate,
-    token: str,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """Create a new booking (requires authentication)"""
-    current_user = get_current_user(token, db)
     
     db_booking = Booking(
         court_id=booking_data.court_id,
