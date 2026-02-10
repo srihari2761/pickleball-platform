@@ -85,10 +85,28 @@ class Message(Base):
 
 # Initialize database
 def init_db():
-    """Create all database tables"""
+    """Create all database tables and seed demo data"""
     try:
         Base.metadata.create_all(bind=engine)
         print("✅ Database tables initialized")
+        
+        # Seed demo user if not exists
+        db = SessionLocal()
+        try:
+            demo_user = db.query(User).filter(User.email == "alice@test.com").first()
+            if not demo_user:
+                demo_user = User(
+                    email="alice@test.com",
+                    password=hash_password("password"),
+                    name="Alice Demo",
+                    role="player",
+                    skill_level="intermediate",
+                )
+                db.add(demo_user)
+                db.commit()
+                print("✅ Demo user seeded (alice@test.com / password)")
+        finally:
+            db.close()
     except Exception as e:
         print(f"⚠️ Database initialization warning: {str(e)}")
         print("ℹ️ App will start, but database operations may fail until DATABASE_URL is properly configured")
