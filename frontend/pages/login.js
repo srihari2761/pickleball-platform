@@ -16,11 +16,11 @@ export default function Login() {
 
     try {
       const response = await api.post('/auth/login', { email, password })
-      localStorage.setItem('token', response.data.token)
+      localStorage.setItem('token', response.data.access_token)
       localStorage.setItem('user', JSON.stringify(response.data.user))
       router.push('/dashboard')
     } catch (err) {
-      setError(err.response?.data?.error || 'Login failed')
+      setError(err.response?.data?.detail || 'Login failed')
     } finally {
       setLoading(false)
     }

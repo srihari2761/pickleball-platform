@@ -25,12 +25,19 @@ export default function Register() {
     setError('')
 
     try {
-      const response = await api.post('/auth/register', formData)
-      localStorage.setItem('token', response.data.token)
+      const payload = {
+        email: formData.email,
+        password: formData.password,
+        name: formData.name,
+        role: formData.role,
+        skill_level: formData.skillLevel,
+      }
+      const response = await api.post('/auth/register', payload)
+      localStorage.setItem('token', response.data.access_token)
       localStorage.setItem('user', JSON.stringify(response.data.user))
       router.push('/dashboard')
     } catch (err) {
-      setError(err.response?.data?.error || 'Registration failed')
+      setError(err.response?.data?.detail || 'Registration failed')
     } finally {
       setLoading(false)
     }
