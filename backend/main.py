@@ -13,7 +13,7 @@ from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text, F
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from passlib.context import CryptContext
-from python_jose import JWTError, jwt
+from jose import JWTError, jwt
 from dotenv import load_dotenv
 
 # Load environment variables
