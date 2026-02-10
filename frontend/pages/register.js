@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/router'
 import api from '../utils/api'
 
-export default function Register() {
+export default function Register({ setUser }) {
   const router = useRouter()
   const [formData, setFormData] = useState({
     email: '',
@@ -35,6 +35,7 @@ export default function Register() {
       const response = await api.post('/auth/register', payload)
       localStorage.setItem('token', response.data.access_token)
       localStorage.setItem('user', JSON.stringify(response.data.user))
+      if (setUser) setUser(response.data.user)
       router.push('/dashboard')
     } catch (err) {
       setError(err.response?.data?.detail || 'Registration failed')

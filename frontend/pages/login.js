@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/router'
 import api from '../utils/api'
 
-export default function Login() {
+export default function Login({ setUser }) {
   const router = useRouter()
   const [email, setEmail] = useState('alice@test.com')
   const [password, setPassword] = useState('password')
@@ -18,6 +18,7 @@ export default function Login() {
       const response = await api.post('/auth/login', { email, password })
       localStorage.setItem('token', response.data.access_token)
       localStorage.setItem('user', JSON.stringify(response.data.user))
+      if (setUser) setUser(response.data.user)
       router.push('/dashboard')
     } catch (err) {
       setError(err.response?.data?.detail || 'Login failed')
