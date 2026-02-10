@@ -1,18 +1,20 @@
 {
   "name": "pickleball-platform",
-  "version": "1.0.0",
-  "description": "Connect pickleball players with courts",
+  "version": "2.0.0",
+  "description": "Connect pickleball players with courts - Separate Frontend & Backend Services",
   "private": true,
-  "workspaces": [
-    "frontend",
-    "backend"
-  ],
   "scripts": {
-    "dev": "concurrently \"npm run dev -w frontend\" \"npm run dev -w backend\"",
-    "build": "npm run build -w frontend && npm run build -w backend",
-    "test": "npm run test -w frontend && npm run test -w backend"
+    "dev": "docker-compose up",
+    "dev:stop": "docker-compose down",
+    "dev:logs": "docker-compose logs -f",
+    "dev:clean": "docker-compose down -v",
+    "frontend:install": "cd frontend && npm install",
+    "frontend:dev": "cd frontend && npm run dev",
+    "frontend:build": "cd frontend && npm run build",
+    "backend:install": "cd backend && pip install -r requirements.txt",
+    "backend:dev": "cd backend && python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "docker": "Latest"
   }
 }
