@@ -20,8 +20,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configuration
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://localhost/pickleball_dev")
-JWT_SECRET = os.getenv("JWT_SECRET", "your-secret-key")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./pickleball.db")
+JWT_SECRET = os.getenv("JWT_SECRET", "your-secret-key-change-in-production")
 JWT_ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -86,8 +86,12 @@ class Message(Base):
 # Initialize database
 def init_db():
     """Create all database tables"""
-    Base.metadata.create_all(bind=engine)
-    print("✅ Database tables initialized")
+    try:
+        Base.metadata.create_all(bind=engine)
+        print("✅ Database tables initialized")
+    except Exception as e:
+        print(f"⚠️ Database initialization warning: {str(e)}")
+        print("ℹ️ App will start, but database operations may fail until DATABASE_URL is properly configured")
 
 
 @asynccontextmanager
@@ -184,6 +188,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# Health check endpoint (for Railway/Docker health checks)
+@app.get("/health")
+def health_check():
+    """Health check endpoint"""
+    return {"status": "ok", "service": "pickleball-api"}
 
 
 # Dependency: Database session
