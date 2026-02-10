@@ -1,0 +1,21 @@
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
+
+function MyApp({ Component, pageProps }) {
+  const router = useRouter()
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    const userData = localStorage.getItem('user')
+    if (token && userData) {
+      setUser(JSON.parse(userData))
+    }
+    setLoading(false)
+  }, [])
+
+  return <Component {...pageProps} user={user} setUser={setUser} loading={loading} />
+}
+
+export default MyApp
