@@ -12,6 +12,13 @@ from pydantic import BaseModel, EmailStr
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
+import bcrypt as _bcrypt
+# Fix passlib + bcrypt>=4.1 compatibility
+if not hasattr(_bcrypt, '__about__'):
+    class _About:
+        __version__ = _bcrypt.__version__
+    _bcrypt.__about__ = _About()
+
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 from dotenv import load_dotenv
@@ -89,8 +96,12 @@ def init_db():
     try:
         Base.metadata.create_all(bind=engine)
         print("✅ Database tables initialized")
-        
-        # Seed demo user if not exists
+    except Exception as e:
+        print(f"⚠️ Database initialization warning: {str(e)}")
+        print("ℹ️ App will start, but database operations may fail until DATABASE_URL is properly configured")
+    
+    # Seed demo data (separate try block so table init errors don't block seeding)
+    try:
         db = SessionLocal()
         try:
             demo_user = db.query(User).filter(User.email == "alice@test.com").first()
@@ -116,8 +127,7 @@ def init_db():
         finally:
             db.close()
     except Exception as e:
-        print(f"⚠️ Database initialization warning: {str(e)}")
-        print("ℹ️ App will start, but database operations may fail until DATABASE_URL is properly configured")
+        print(f"⚠️ Seed warning: {str(e)}")
 
 
 @asynccontextmanager
