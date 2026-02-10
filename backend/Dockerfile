@@ -7,4 +7,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "main:app", "--bind", "0.0.0.0:8000"]
+# Use shell form to allow environment variable expansion
+# Default to 8000 if PORT is not set (for local development)
+CMD sh -c "python -m uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"
