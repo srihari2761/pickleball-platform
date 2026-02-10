@@ -1,0 +1,14 @@
+{
+  "buildCommand": "npm install -w frontend && npm run build -w frontend",
+  "outputDirectory": "frontend/.next",
+  "installCommand": "npm install",
+  "env": {
+    "NEXT_PUBLIC_API_URL": "@railway_api_url"
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "${NEXT_PUBLIC_API_URL}/api/$1"
+    }
+  ]
+}
