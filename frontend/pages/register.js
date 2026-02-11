@@ -2,35 +2,33 @@ import { useState } from 'react'
 import { useRouter } from 'next/router'
 import api from '../utils/api'
 
+const SKILL_LEVELS = [
+  { value: 'beginner', label: '🌱 Beginner', desc: 'Just starting out' },
+  { value: 'intermediate', label: '🎯 Intermediate', desc: 'Know the basics' },
+  { value: 'advanced', label: '🔥 Advanced', desc: 'Competitive player' },
+  { value: 'professional', label: '🏆 Professional', desc: 'Tournament level' },
+]
+
 export default function Register({ setUser }) {
   const router = useRouter()
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    name: '',
-    role: 'player',
-    skillLevel: 'intermediate',
+    email: '', password: '', name: '', role: 'player', skillLevel: 'intermediate',
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
     setError('')
-
     try {
       const payload = {
-        email: formData.email,
-        password: formData.password,
-        name: formData.name,
-        role: formData.role,
-        skill_level: formData.skillLevel,
+        email: formData.email, password: formData.password, name: formData.name,
+        role: formData.role, skill_level: formData.skillLevel,
       }
       const response = await api.post('/auth/register', payload)
       localStorage.setItem('token', response.data.access_token)
@@ -45,90 +43,73 @@ export default function Register({ setUser }) {
   }
 
   return (
-    <div style={{ maxWidth: '400px', margin: '50px auto', fontFamily: 'sans-serif' }}>
-      <h1>🎾 Register</h1>
-      {error && <div style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '15px' }}>
-          <label>Name:</label>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-            required
-          />
+    <div className="auth-wrapper">
+      <div className="auth-card">
+        <div className="auth-header">
+          <div className="logo-icon">🏓</div>
+          <h1>Join PicklePlay</h1>
+          <p>Create your free account</p>
         </div>
-        <div style={{ marginBottom: '15px' }}>
-          <label>Email:</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-            required
-          />
-        </div>
-        <div style={{ marginBottom: '15px' }}>
-          <label>Password:</label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-            required
-          />
-        </div>
-        <div style={{ marginBottom: '15px' }}>
-          <label>I am a:</label>
-          <select
-            name="role"
-            value={formData.role}
-            onChange={handleChange}
-            style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-          >
-            <option value="player">Player</option>
-            <option value="owner">Court Owner</option>
-          </select>
-        </div>
-        {formData.role === 'player' && (
-          <div style={{ marginBottom: '15px' }}>
-            <label>Skill Level:</label>
-            <select
-              name="skillLevel"
-              value={formData.skillLevel}
-              onChange={handleChange}
-              style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-            >
-              <option value="beginner">Beginner</option>
-              <option value="intermediate">Intermediate</option>
-              <option value="advanced">Advanced</option>
-              <option value="professional">Professional</option>
-            </select>
+
+        {error && <div className="form-error">{error}</div>}
+
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label className="form-label">Full Name</label>
+            <input type="text" name="name" className="form-input" value={formData.name}
+              onChange={handleChange} placeholder="John Smith" required />
           </div>
-        )}
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            width: '100%',
-            padding: '10px',
-            backgroundColor: '#4CAF50',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-          }}
-        >
-          {loading ? 'Registering...' : 'Register'}
-        </button>
-      </form>
-      <p style={{ marginTop: '20px', textAlign: 'center' }}>
-        Already have an account? <a href="/login">Login here</a>
-      </p>
+          <div className="form-group">
+            <label className="form-label">Email</label>
+            <input type="email" name="email" className="form-input" value={formData.email}
+              onChange={handleChange} placeholder="you@example.com" required />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Password</label>
+            <input type="password" name="password" className="form-input" value={formData.password}
+              onChange={handleChange} placeholder="Min. 6 characters" required />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">I am a...</label>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {[{ v: 'player', l: '🎾 Player' }, { v: 'owner', l: '🏟️ Court Owner' }].map(r => (
+                <button key={r.v} type="button"
+                  className={`btn ${formData.role === r.v ? 'btn-primary' : 'btn-outline'}`}
+                  style={{ flex: 1 }}
+                  onClick={() => setFormData(p => ({ ...p, role: r.v }))}
+                >{r.l}</button>
+              ))}
+            </div>
+          </div>
+
+          {formData.role === 'player' && (
+            <div className="form-group">
+              <label className="form-label">Skill Level</label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                {SKILL_LEVELS.map(s => (
+                  <button key={s.value} type="button"
+                    className={`btn btn-sm ${formData.skillLevel === s.value ? 'btn-primary' : 'btn-outline'}`}
+                    onClick={() => setFormData(p => ({ ...p, skillLevel: s.value }))}
+                    style={{ flexDirection: 'column', padding: '10px 8px' }}
+                  >
+                    <span>{s.label}</span>
+                    <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>{s.desc}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <button type="submit" className="btn btn-primary btn-full btn-lg" disabled={loading}>
+            {loading ? 'Creating Account...' : 'Create Account'}
+          </button>
+        </form>
+
+        <div className="auth-footer">
+          Already have an account? <a href="/login">Sign in</a>
+        </div>
+      </div>
     </div>
   )
 }

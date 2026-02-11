@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import api from '../utils/api'
+import Navbar from '../components/Navbar'
+import CourtCard from '../components/CourtCard'
+import BookingCard from '../components/BookingCard'
+import TimeSlotGrid from '../components/TimeSlotGrid'
+import Modal from '../components/Modal'
 
 export default function Dashboard({ user, loading }) {
   const router = useRouter()
@@ -8,28 +13,26 @@ export default function Dashboard({ user, loading }) {
   const [bookings, setBookings] = useState([])
   const [dataLoading, setDataLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('courts')
+  const [selectedCourt, setSelectedCourt] = useState(null)
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login')
-    }
+    if (!loading && !user) router.push('/login')
   }, [loading, user])
 
   useEffect(() => {
-    if (user) {
-      fetchData()
-    }
+    if (router.query.tab === 'bookings') setActiveTab('bookings')
+  }, [router.query])
+
+  useEffect(() => {
+    if (user) fetchData()
   }, [user])
 
   const fetchData = async () => {
     try {
       const courtsRes = await api.get('/courts')
       setCourts(courtsRes.data)
-
-      if (user.role === 'player') {
-        const bookingsRes = await api.get('/bookings')
-        setBookings(bookingsRes.data)
-      }
+      const bookingsRes = await api.get('/bookings')
+      setBookings(bookingsRes.data)
     } catch (error) {
       console.error('Failed to fetch data:', error)
     } finally {
@@ -37,16 +40,10 @@ export default function Dashboard({ user, loading }) {
     }
   }
 
-  const handleLogout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
-    router.push('/login')
-  }
-
-  const handleBooking = async (courtId, slot) => {
+  const handleBook = async (courtId, slot) => {
     try {
       await api.post('/bookings', { court_id: courtId, time_slot: slot })
-      alert('Booking confirmed!')
+      setSelectedCourt(null)
       fetchData()
     } catch (error) {
       alert(error.response?.data?.detail || 'Booking failed')
@@ -54,156 +51,78 @@ export default function Dashboard({ user, loading }) {
   }
 
   if (loading || dataLoading) {
-    return <div style={{ textAlign: 'center', padding: '50px' }}>Loading...</div>
+    return <div className="loading-screen"><div className="spinner" /> Loading...</div>
   }
-
-  if (!user) {
-    return <div>Redirecting...</div>
-  }
+  if (!user) return null
 
   return (
-    <div style={{ fontFamily: 'sans-serif', maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-        <h1>🎾 Pickleball Platform</h1>
-        <div>
-          <span style={{ marginRight: '20px' }}>Welcome, {user.name}!</span>
-          <button
-            onClick={handleLogout}
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#ff6b6b',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
-          >
-            Logout
+    <div>
+      <Navbar user={user} />
+
+      <div className="page-container">
+        <div className="page-header">
+          <h1>{activeTab === 'courts' ? 'Available Courts' : 'My Bookings'}</h1>
+          <p>{activeTab === 'courts'
+            ? `${courts.length} court${courts.length !== 1 ? 's' : ''} available for booking`
+            : `${bookings.length} booking${bookings.length !== 1 ? 's' : ''}`
+          }</p>
+        </div>
+
+        <div className="tabs">
+          <button className={`tab ${activeTab === 'courts' ? 'active' : ''}`} onClick={() => setActiveTab('courts')}>
+            🏟️ Courts
+          </button>
+          <button className={`tab ${activeTab === 'bookings' ? 'active' : ''}`} onClick={() => setActiveTab('bookings')}>
+            📋 My Bookings
           </button>
         </div>
-      </div>
 
-      <div style={{ marginBottom: '20px', borderBottom: '1px solid #ddd' }}>
-        <button
-          onClick={() => setActiveTab('courts')}
-          style={{
-            padding: '10px 20px',
-            backgroundColor: activeTab === 'courts' ? '#4CAF50' : '#f0f0f0',
-            color: activeTab === 'courts' ? 'white' : 'black',
-            border: 'none',
-            cursor: 'pointer',
-            marginRight: '10px',
-          }}
-        >
-          Courts
-        </button>
-        {user.role === 'player' && (
-          <button
-            onClick={() => setActiveTab('bookings')}
-            style={{
-              padding: '10px 20px',
-              backgroundColor: activeTab === 'bookings' ? '#4CAF50' : '#f0f0f0',
-              color: activeTab === 'bookings' ? 'white' : 'black',
-              border: 'none',
-              cursor: 'pointer',
-            }}
-          >
-            My Bookings
-          </button>
+        {activeTab === 'courts' && (
+          courts.length === 0 ? (
+            <div className="empty-state">
+              <div className="icon">🏟️</div>
+              <h3>No Courts Available</h3>
+              <p>Check back soon for available courts!</p>
+            </div>
+          ) : (
+            <div className="courts-grid">
+              {courts.map((court, i) => (
+                <CourtCard key={court.id} court={court} index={i} onViewTimes={setSelectedCourt} />
+              ))}
+            </div>
+          )
         )}
-        {user.role === 'owner' && (
-          <button
-            onClick={() => setActiveTab('manage')}
-            style={{
-              padding: '10px 20px',
-              backgroundColor: activeTab === 'manage' ? '#4CAF50' : '#f0f0f0',
-              color: activeTab === 'manage' ? 'white' : 'black',
-              border: 'none',
-              cursor: 'pointer',
-            }}
-          >
-            Manage Courts
-          </button>
+
+        {activeTab === 'bookings' && (
+          bookings.length === 0 ? (
+            <div className="empty-state">
+              <div className="icon">📋</div>
+              <h3>No Bookings Yet</h3>
+              <p>Book a court to get started!</p>
+              <button className="btn btn-primary" style={{ marginTop: 16 }} onClick={() => setActiveTab('courts')}>
+                Browse Courts
+              </button>
+            </div>
+          ) : (
+            <div className="bookings-grid">
+              {bookings.map((b) => (
+                <BookingCard key={b.id} booking={b} />
+              ))}
+            </div>
+          )
         )}
       </div>
 
-      {activeTab === 'courts' && (
-        <div>
-          <h2>Available Courts</h2>
-          {courts.length === 0 ? (
-            <p>No courts available yet. Check back soon!</p>
-          ) : (
-            <div style={{ display: 'grid', gap: '20px' }}>
-              {courts.map((court) => (
-                <div
-                  key={court.id}
-                  style={{
-                    border: '1px solid #ddd',
-                    padding: '20px',
-                    borderRadius: '8px',
-                    backgroundColor: '#f9f9f9',
-                  }}
-                >
-                  <h3>{court.name}</h3>
-                  <p>{court.location}</p>
-                  <p>Surface: {court.surface_type}</p>
-                  {user.role === 'player' && (
-                    <div style={{ marginTop: '10px' }}>
-                      <button
-                        onClick={() => handleBooking(court.id, '10:00-11:00')}
-                        style={{
-                          padding: '8px 16px',
-                          backgroundColor: '#4CAF50',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          marginRight: '10px',
-                        }}
-                      >
-                        Book Court
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ))}
+      {selectedCourt && (
+        <Modal title={`Book — ${selectedCourt.name}`} onClose={() => setSelectedCourt(null)}>
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 4 }}>
+              <span className="surface-badge">{selectedCourt.surface_type || 'Standard'}</span>
             </div>
-          )}
-        </div>
-      )}
-
-      {activeTab === 'bookings' && user.role === 'player' && (
-        <div>
-          <h2>My Bookings</h2>
-          {bookings.length === 0 ? (
-            <p>No bookings yet. Book a court to get started!</p>
-          ) : (
-            <div style={{ display: 'grid', gap: '20px' }}>
-              {bookings.map((booking) => (
-                <div
-                  key={booking.id}
-                  style={{
-                    border: '1px solid #ddd',
-                    padding: '20px',
-                    borderRadius: '8px',
-                    backgroundColor: '#f9f9f9',
-                  }}
-                >
-                  <h3>{booking.court_name || 'Court'}</h3>
-                  <p>Time: {booking.time_slot}</p>
-                  <p>Status: {booking.status}</p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {activeTab === 'manage' && user.role === 'owner' && (
-        <div>
-          <h2>Manage Your Courts</h2>
-          <p>Court management features coming soon!</p>
-        </div>
+            <p style={{ color: '#666', fontSize: '0.9rem' }}>📍 {selectedCourt.location}</p>
+          </div>
+          <TimeSlotGrid court={selectedCourt} bookings={bookings} onBook={handleBook} />
+        </Modal>
       )}
     </div>
   )
