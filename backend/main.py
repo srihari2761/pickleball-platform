@@ -290,6 +290,18 @@ def get_current_user(
     return user
 
 
+# Debug endpoint (temporary)
+@app.get("/debug/auth")
+def debug_auth(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """Debug auth - temporary"""
+    token = credentials.credentials
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        return {"payload": payload, "jwt_secret_len": len(JWT_SECRET), "jwt_secret_prefix": JWT_SECRET[:5]}
+    except JWTError as e:
+        return {"error": str(e), "jwt_secret_len": len(JWT_SECRET), "jwt_secret_prefix": JWT_SECRET[:5]}
+
+
 # Auth Routes
 @app.post("/auth/register", response_model=TokenResponse)
 def register(user_data: UserRegister, db: Session = Depends(get_db)):
