@@ -54,6 +54,7 @@ export default function Courts() {
               <p>Surface: {court.surface_type}</p>
               <p>Courts: {court.number_of_courts}</p>
               {court.description && <p>{court.description}</p>}
+              <a href={`/courts/${court.id}`}>View Details</a>
               {isAuthenticated && (
                 <a href={`/courts/${court.id}/book`}>Book This Court</a>
               )}

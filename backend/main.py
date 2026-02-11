@@ -497,6 +497,18 @@ def create_booking(
     
     return db_booking
 
+@app.get("/api/v1/bookings/mine", response_model=List[BookingResponse])
+def get_my_bookings(
+    token: str = None,
+    db: Session = Depends(get_db),
+):
+    """Get all bookings for the current user"""
+    user_data = get_current_user(token)
+    bookings = db.query(Booking).filter(
+        Booking.user_id == user_data["user_id"]
+    ).order_by(Booking.start_time.desc()).all()
+    return bookings
+
 @app.get("/api/v1/bookings/{booking_id}", response_model=BookingResponse)
 def get_booking(booking_id: int, db: Session = Depends(get_db)):
     """Get a specific booking"""
