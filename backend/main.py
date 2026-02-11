@@ -290,18 +290,6 @@ def get_current_user(
     return user
 
 
-# Debug endpoint (temporary)
-@app.get("/debug/auth")
-def debug_auth(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    """Debug auth - temporary"""
-    token = credentials.credentials
-    try:
-        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-        return {"payload": payload, "jwt_secret_len": len(JWT_SECRET), "jwt_secret_prefix": JWT_SECRET[:5]}
-    except JWTError as e:
-        return {"error": str(e), "jwt_secret_len": len(JWT_SECRET), "jwt_secret_prefix": JWT_SECRET[:5]}
-
-
 # Auth Routes
 @app.post("/auth/register", response_model=TokenResponse)
 def register(user_data: UserRegister, db: Session = Depends(get_db)):
@@ -326,7 +314,7 @@ def register(user_data: UserRegister, db: Session = Depends(get_db)):
     
     # Generate token
     access_token = create_access_token(
-        data={"sub": db_user.id},
+        data={"sub": str(db_user.id)},
         expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     )
     
@@ -349,7 +337,7 @@ def login(credentials: UserLogin, db: Session = Depends(get_db)):
     
     # Generate token
     access_token = create_access_token(
-        data={"sub": user.id},
+        data={"sub": str(user.id)},
         expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     )
     
