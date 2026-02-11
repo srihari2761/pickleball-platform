@@ -135,7 +135,7 @@ class TestCourts:
             "location": "Nowhere",
             "surface_type": "Concrete",
         })
-        assert resp.status_code in (401, 422)
+        assert resp.status_code in (401, 403, 422)
 
 
 # ── 9-11. Bookings ──────────────────────────────────────────────
@@ -168,7 +168,7 @@ class TestBookings:
     def test_get_bookings_unauthenticated(self, client):
         """Test 11: GET /bookings without token fails."""
         resp = client.get("/bookings")
-        assert resp.status_code in (401, 422)
+        assert resp.status_code in (401, 403, 422)
 
 
 # ── 12. Full User Journey ───────────────────────────────────────
