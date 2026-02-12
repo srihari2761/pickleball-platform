@@ -67,6 +67,9 @@ class Court(Base):
     location = Column(String(255))
     surface_type = Column(String(100))
     amenities = Column(Text)
+    price_per_hour = Column(Integer, default=25)
+    operating_hours = Column(String(255), default="6:00 AM - 10:00 PM daily")
+    photo_url = Column(String(500), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
@@ -114,17 +117,22 @@ def init_db():
                 db.add_all([alice, bob, carol])
                 db.flush()
                 
-                # Demo courts
+                # Demo courts (10 realistic courts across US cities)
                 courts = [
-                    Court(owner_id=carol.id, name="Sunset Pickleball Club", location="123 Sunset Blvd, San Jose, CA", surface_type="Concrete", amenities="Lights, Restrooms, Water fountain"),
-                    Court(owner_id=carol.id, name="Bay Area Courts", location="456 Marina Dr, San Francisco, CA", surface_type="Asphalt", amenities="Covered, Pro shop, Parking"),
-                    Court(owner_id=carol.id, name="Golden Gate Pickleball", location="789 Park Ave, Oakland, CA", surface_type="Sport Court", amenities="Indoor, Climate controlled, Locker rooms"),
-                    Court(owner_id=carol.id, name="Peninsula Paddle Center", location="321 El Camino Real, Palo Alto, CA", surface_type="Concrete", amenities="Lights, Seating, Vending machines"),
-                    Court(owner_id=carol.id, name="South Bay Smash Courts", location="555 Stevens Creek, Cupertino, CA", surface_type="Sport Court", amenities="Outdoor, Shaded seating, Free parking"),
+                    Court(owner_id=carol.id, name="Sunset Pickleball Club", location="123 Sunset Blvd, San Jose, CA", surface_type="hardcourt", amenities="Lights, Restrooms, Water fountain, Ball machine rental", price_per_hour=25, operating_hours="6:00 AM - 10:00 PM daily", photo_url="https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=800"),
+                    Court(owner_id=carol.id, name="Bay Area Courts", location="456 Marina Dr, San Francisco, CA", surface_type="hardcourt", amenities="Covered courts, Pro shop, Parking, Coaching available", price_per_hour=35, operating_hours="7:00 AM - 9:00 PM daily", photo_url="https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=800"),
+                    Court(owner_id=carol.id, name="Golden Gate Pickleball", location="789 Park Ave, Oakland, CA", surface_type="other", amenities="Indoor, Climate controlled, Locker rooms, Showers", price_per_hour=45, operating_hours="6:00 AM - 11:00 PM daily", photo_url="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800"),
+                    Court(owner_id=carol.id, name="Peninsula Paddle Center", location="321 El Camino Real, Palo Alto, CA", surface_type="hardcourt", amenities="Lights, Seating, Vending machines, Free Wi-Fi", price_per_hour=30, operating_hours="7:00 AM - 10:00 PM daily"),
+                    Court(owner_id=carol.id, name="South Bay Smash Courts", location="555 Stevens Creek, Cupertino, CA", surface_type="other", amenities="Outdoor, Shaded seating, Free parking, Picnic area", price_per_hour=20, operating_hours="6:00 AM - 9:00 PM daily"),
+                    Court(owner_id=carol.id, name="Desert Dink Pickleball", location="2100 E Camelback Rd, Scottsdale, AZ", surface_type="hardcourt", amenities="Shaded courts, Misting system, Pro shop, Tournament hosting", price_per_hour=28, operating_hours="5:00 AM - 9:00 PM daily", photo_url="https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?w=800"),
+                    Court(owner_id=carol.id, name="Lone Star Paddle Club", location="800 Congress Ave, Austin, TX", surface_type="clay", amenities="Clay courts, Clubhouse, Bar & grill, Lessons", price_per_hour=40, operating_hours="7:00 AM - 10:00 PM Mon-Sat, 8:00 AM - 8:00 PM Sun", photo_url="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=800"),
+                    Court(owner_id=carol.id, name="Peach State Pickleball", location="450 Peachtree St NE, Atlanta, GA", surface_type="hardcourt", amenities="Lights, Restrooms, Water stations, Beginner clinics", price_per_hour=22, operating_hours="6:00 AM - 10:00 PM daily"),
+                    Court(owner_id=carol.id, name="Mile High Dinks", location="1550 Court Pl, Denver, CO", surface_type="other", amenities="Indoor, Heated, Altitude training, Equipment rental", price_per_hour=38, operating_hours="6:00 AM - 11:00 PM daily", photo_url="https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800"),
+                    Court(owner_id=carol.id, name="Emerald City Courts", location="305 Harrison St, Seattle, WA", surface_type="hardcourt", amenities="Covered outdoor, Rain shelters, Coffee bar, Open play sessions", price_per_hour=15, operating_hours="7:00 AM - 9:00 PM daily"),
                 ]
                 db.add_all(courts)
                 db.commit()
-                print("✅ Demo data seeded: 3 users, 5 courts")
+                print("✅ Demo data seeded: 3 users, 10 courts")
         finally:
             db.close()
     except Exception as e:
@@ -175,6 +183,9 @@ class CourtCreate(BaseModel):
     location: str
     surface_type: str
     amenities: Optional[str] = None
+    price_per_hour: Optional[int] = 25
+    operating_hours: Optional[str] = "6:00 AM - 10:00 PM daily"
+    photo_url: Optional[str] = None
 
 
 class CourtResponse(BaseModel):
@@ -184,6 +195,9 @@ class CourtResponse(BaseModel):
     location: str
     surface_type: str
     amenities: Optional[str]
+    price_per_hour: Optional[int]
+    operating_hours: Optional[str]
+    photo_url: Optional[str]
     created_at: datetime
     
     class Config:

@@ -448,6 +448,227 @@ a:hover { color: var(--primary); }
   border-top: 1px solid var(--border-light);
 }
 
+/* ===== LANDING PAGE (Enhanced) ===== */
+.landing-page { overflow-x: hidden; }
+
+.landing-nav {
+  background: var(--primary);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.landing-nav-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.landing-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hero-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.95);
+  padding: 6px 18px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 24px;
+  backdrop-filter: blur(4px);
+}
+
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 32px;
+  margin-top: 48px;
+  flex-wrap: wrap;
+}
+.hero-stat { text-align: center; }
+.hero-stat-num {
+  display: block;
+  font-size: 1.8rem;
+  font-weight: 800;
+}
+.hero-stat-label {
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+.hero-stat-divider {
+  width: 1px;
+  height: 40px;
+  background: rgba(255,255,255,0.25);
+}
+
+.section-subtitle {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  margin-top: -32px;
+  margin-bottom: 48px;
+}
+
+.landing-courts {
+  background: var(--bg);
+  padding: 80px 24px;
+}
+.landing-courts-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+.landing-courts h2 {
+  text-align: center;
+  font-size: 2rem;
+  color: var(--primary);
+  margin-bottom: 48px;
+}
+
+.court-rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+}
+.star-rating { color: #F9A825; letter-spacing: 1px; }
+.rating-num { font-weight: 700; color: var(--text); }
+.rating-count { color: var(--text-light); font-size: 0.82rem; }
+
+.landing-how {
+  padding: 80px 24px;
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+.landing-how h2 {
+  text-align: center;
+  font-size: 2rem;
+  color: var(--primary);
+  margin-bottom: 48px;
+}
+.how-steps {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.how-step {
+  text-align: center;
+  flex: 1;
+  min-width: 200px;
+  max-width: 280px;
+}
+.how-step-num {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  font-size: 1.3rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+.how-step h3 {
+  font-size: 1.1rem;
+  color: var(--primary);
+  margin-bottom: 8px;
+}
+.how-step p {
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+}
+.how-step-arrow {
+  font-size: 1.5rem;
+  color: var(--text-light);
+  margin-top: 12px;
+}
+
+.landing-cta {
+  background: linear-gradient(135deg, var(--primary) 0%, #1a3a0a 100%);
+  color: white;
+  text-align: center;
+  padding: 64px 24px;
+}
+.landing-cta h2 {
+  font-size: 2rem;
+  margin-bottom: 12px;
+}
+.landing-cta p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin-bottom: 28px;
+}
+
+.landing-footer-full {
+  background: #1a1a1a;
+  color: #ccc;
+  padding: 0;
+}
+.footer-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 48px 24px;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 40px;
+}
+.footer-brand .footer-logo {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 12px;
+}
+.footer-brand p {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #999;
+}
+.footer-links-group h4 {
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.footer-links-group a {
+  display: block;
+  color: #999;
+  font-size: 0.88rem;
+  padding: 4px 0;
+  transition: var(--transition);
+}
+.footer-links-group a:hover { color: white; }
+.footer-bottom {
+  border-top: 1px solid #333;
+  padding: 20px 24px;
+  text-align: center;
+  font-size: 0.82rem;
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .hero-stats { gap: 20px; }
+  .hero-stat-num { font-size: 1.4rem; }
+  .hero-stat-divider { display: none; }
+  .how-step-arrow { display: none; }
+  .how-steps { flex-direction: column; align-items: center; }
+  .footer-inner { grid-template-columns: 1fr 1fr; gap: 24px; }
+  .landing-nav-links .navbar-link { display: none; }
+}
+
 /* ===== TIME SLOT GRID ===== */
 .date-picker {
   display: flex;
