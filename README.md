@@ -32,7 +32,7 @@ Connect pickleball players with available courts. Find courts, book time slots, 
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/your-username/pickleball-platform.git
+git clone https://github.com/srihari2761/pickleball-platform.git
 cd pickleball-platform
 ```
 
@@ -73,58 +73,59 @@ pickleball-platform/
 │   ├── pages/            # Page components
 │   ├── components/       # Reusable components
 │   ├── utils/            # Utilities (API client, etc)
-│   └── package.json
+│   └── styles/           # CSS styles
 ├── backend/              # Express.js backend server
 │   ├── server.js         # Main server file
-│   └── package.json
-├── database/             # Database schema
+│   ├── init-db.js        # Database initialization
+│   └── seed.js           # Seed data
+├── docs/                 # Documentation
+│   ├── ARCHITECTURE.md   # System architecture
+│   ├── DEPLOYMENT.md     # Deployment guide
+│   ├── QUICKSTART.md     # Quick start guide
+│   └── PROJECT-STATUS.md # Current project status
+├── .github/workflows/    # CI/CD pipelines
 ├── .env.example          # Environment variables template
-└── package.json          # Root workspace configuration
+├── docker-compose.yml    # Docker setup
+├── CONTRIBUTING.md       # Contribution guidelines
+└── LICENSE               # MIT License
 ```
 
 ## API Endpoints
 
 ### Authentication
-- `POST /auth/register` - Register new user
-- `POST /auth/login` - Login user
+- `POST /auth/register` — Register new user
+- `POST /auth/login` — Login user
 
 ### Courts
-- `GET /courts` - List all courts
-- `POST /courts` - Create new court (authenticated)
+- `GET /courts` — List all courts
+- `POST /courts` — Create new court (authenticated)
 
 ### Bookings
-- `GET /bookings` - Get user's bookings (authenticated)
-- `POST /bookings` - Create new booking (authenticated)
+- `GET /bookings` — Get user's bookings (authenticated)
+- `POST /bookings` — Create new booking (authenticated)
 
 ### Health
-- `GET /health` - API health check
-
-## Demo Credentials
-
-**Email**: alice@test.com  
-**Password**: password
+- `GET /health` — API health check
 
 ## Deployment
 
 ### Frontend (Vercel)
 
 1. Push code to GitHub
-2. Connect GitHub repo to Vercel
-3. Set environment variables:
-   - `NEXT_PUBLIC_API_URL`: Railway backend URL
+2. Connect repo to Vercel
+3. Set `NEXT_PUBLIC_API_URL` to your backend URL
 4. Deploy
 
 ### Backend (Railway)
 
-1. Push code to GitHub
-2. Create Railway project from GitHub repo
-3. Add PostgreSQL database
-4. Set environment variables:
-   - `DATABASE_URL`: Railway PostgreSQL URL
-   - `JWT_SECRET`: Random secret key
-5. Deploy
+1. Create Railway project from GitHub repo
+2. Add PostgreSQL database
+3. Set `DATABASE_URL` and `JWT_SECRET` environment variables
+4. Deploy
 
-## Features Roadmap
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for detailed instructions.
+
+## Roadmap
 
 ### Phase 1 (MVP) ✅
 - User authentication
@@ -146,18 +147,15 @@ pickleball-platform/
 
 ## Contributing
 
-Contributions are welcome! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Submit a pull request
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## License
 
-MIT License - see LICENSE file for details
+MIT License — see [LICENSE](LICENSE) for details.
 
 ## Support
 
-For issues and questions, please create an GitHub issue or contact support.
+For issues and questions, please open a [GitHub Issue](https://github.com/srihari2761/pickleball-platform/issues).
 
 ---
 
